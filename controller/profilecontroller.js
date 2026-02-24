@@ -1,10 +1,21 @@
-
+const User = require("../model/authModel");
 
 const profilecontroller = async (req, res) => {
-    return res.json({
-        message: "Protected route access",
-        user: req.user
-    });
+    try {
+        const user = await User.findById(req.user.id);
+
+        if (!user) {
+            return res.status(404).json({ message: "User not found" });
+        }
+
+        res.json({
+            message: "Protected route access",
+            user
+        });
+
+    } catch (error) {
+        res.status(500).json({ message: "Server error" });
+    }
 };
 
 module.exports = profilecontroller;

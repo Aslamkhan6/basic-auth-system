@@ -11,9 +11,14 @@ const userschema = mongoose.Schema({
     },
     password:{
         type:String,
-       default:"user",
-        required:true
-    }
+      required:true
+    },
+    role:{
+        type:String,
+        default:"user"
+    },
+    profileImage: String,
+    profileImagePublicId: String
 },{timestamp:true})
 
 

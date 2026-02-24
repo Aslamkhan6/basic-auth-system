@@ -1,9 +1,10 @@
 const express =  require("express")
-const userroute = require("./routes/router")
+const userroutes = require("./routes/userroute");
 const dbconnection = require("./utils/db-connection")
+require("dotenv").config();
 const app = express()
 app.use(express.json());
-app.use("/api/auth",userroute)
+app.use("/api/auth",userroutes)
 let port = process.env.PORT
 console.log(port)
 dbconnection().then(()=>{

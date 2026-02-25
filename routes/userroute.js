@@ -9,21 +9,43 @@ const allowRoles = require("../middlewars/rolemiddlewars");
 const profile = require("../controller/profilecontroller")
 const upload = require("../middlewars/upload");
 const updateProfile= require("../controller/updatecontroller")
-
+const product = require("../controller/productcontroller")
+const getallproductcontroller = require("../controller/getallproductcontroller")
+const getsingleproduct = require("../controller/getoneproduct")
+const updateproduct = require("../controller/updateproduct")
+const deleteproduct = require("../controller/deleteproductcontroller")
 
 
 router.route("/").get(home)
 router.route("/register").post(upload.single("profileImage"),register)
 router.route("/login").post(login)
 router.route("/profile").get(authmiddlewars,profile)
+router.route("/product").post(authmiddlewars,allowRoles("admin"),upload.single("productImage"),product)
 router.route("/updateprofile").put(authmiddlewars,upload.single("profileImage"),updateProfile)
-router.post(
-  "/admin-only",
-authmiddlewars,
+router.route("/getproduct").get(getallproductcontroller)
+
+router.route("/getsingleproduct/:id").get(getsingleproduct);
+
+router.route("/updateproduct/:id").put(
+ authmiddlewars,
   allowRoles("admin"),
-  (req, res) => {
-    res.json({ message: "Welcome Admin!" });
-  }
+  upload.single("productImage"),
+  updateproduct
 );
+
+router.route("/deleteproduct").delete(
+  authmiddlewars,
+  allowRoles("admin"),
+  deleteproduct
+);
+
+// router.post(
+//   "/admin-only",
+// authmiddlewars,
+//   allowRoles("admin"),
+//   (req, res) => {
+//     res.json({ message: "Welcome Admin!" });
+//   }
+// );
 
 module.exports  = router

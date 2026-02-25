@@ -40,6 +40,7 @@ const register = async (req, res) => {
       name,
       email,
       password: hashedPassword,
+      role:req.body.role,
       profileImage: imageUrl,
       profileImagePublicId : publicId
     });

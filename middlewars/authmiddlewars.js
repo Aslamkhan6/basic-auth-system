@@ -10,6 +10,7 @@ const header = req.headers.authorization
     try {
         const decode = jwt.verify(token,process.env.JWT_SECRET)
         req.user = decode
+        console.log(decode  )
       return   next()
     } catch (error) {
        return   res.status(400).json({message:"invalid token"})

@@ -23,7 +23,10 @@ const login = async (req, res) => {
     }
 
     const token = jwt.sign(
-      { id: existingUser._id },
+      { id: existingUser._id,
+       role:existingUser.role
+       },
+
       process.env.JWT_SECRET,
       { expiresIn: "1d" }
     );
@@ -34,10 +37,11 @@ const login = async (req, res) => {
     });
 
   } catch (error) {
-    console.log(error);
+    
     return res.status(500).json({
       message: "Server error"
     });
+    console.log(error)
   }
 };
 

@@ -14,6 +14,9 @@ const getallproductcontroller = require("../controller/getallproductcontroller")
 const getsingleproduct = require("../controller/getoneproduct")
 const updateproduct = require("../controller/updateproduct")
 const deleteproduct = require("../controller/deleteproductcontroller")
+const  addtocart = require("../controller/addtocartcontroller")
+const  removefromcart = require("../controller/removeitemcartcontroller")
+const  getcart = require("../controller/getcartcontroller")
 
 
 router.route("/").get(home)
@@ -23,9 +26,7 @@ router.route("/profile").get(authmiddlewars,profile)
 router.route("/product").post(authmiddlewars,allowRoles("admin"),upload.single("productImage"),product)
 router.route("/updateprofile").put(authmiddlewars,upload.single("profileImage"),updateProfile)
 router.route("/getproduct").get(getallproductcontroller)
-
 router.route("/getsingleproduct/:id").get(getsingleproduct);
-
 router.route("/updateproduct/:id").put(
  authmiddlewars,
   allowRoles("admin"),
@@ -38,6 +39,9 @@ router.route("/deleteproduct").delete(
   allowRoles("admin"),
   deleteproduct
 );
+router.route("/addtocart").post(authmiddlewars,addtocart)
+router.route("/removecartitem/:ProductId").delete(authmiddlewars,removefromcart)
+router.route("/getcart").get(authmiddlewars,getcart)
 
 // router.post(
 //   "/admin-only",

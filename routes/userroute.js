@@ -3,7 +3,6 @@ const home = require("../controller/authcontroller");
 const register = require("../controller/registercontroller")
 const router = express.Router();
 const login = require("../controller/logincontroller")
-
 const authmiddlewars = require("../middlewars/authmiddlewars");
 const allowRoles = require("../middlewars/rolemiddlewars");
 const profile = require("../controller/profilecontroller")
@@ -17,7 +16,10 @@ const deleteproduct = require("../controller/deleteproductcontroller")
 const  addtocart = require("../controller/addtocartcontroller")
 const  removefromcart = require("../controller/removeitemcartcontroller")
 const  getcart = require("../controller/getcartcontroller")
-
+const createorder = require("../controller/createorder")
+const myorder = require("../controller/myorder")
+const allorder = require("../controller/getallorder")
+const updateorderstatus = require("../controller/updateorderstatus")
 
 router.route("/").get(home)
 router.route("/register").post(upload.single("profileImage"),register)
@@ -39,17 +41,29 @@ router.route("/deleteproduct").delete(
   allowRoles("admin"),
   deleteproduct
 );
-router.route("/addtocart").post(authmiddlewars,addtocart)
-router.route("/removecartitem/:ProductId").delete(authmiddlewars,removefromcart)
-router.route("/getcart").get(authmiddlewars,getcart)
+router.route("/addtocart").post(
+  authmiddlewars,addtocart);
+router.route("/removecartitem/:ProductId").delete(
+  authmiddlewars,removefromcart);
+router.route("/getcart").get(
+  authmiddlewars,getcart);
 
-// router.post(
-//   "/admin-only",
-// authmiddlewars,
-//   allowRoles("admin"),
-//   (req, res) => {
-//     res.json({ message: "Welcome Admin!" });
-//   }
-// );
+  router.route("/createorder").post(
+    authmiddlewars,createorder
+  )
+
+  router.route("/myorder").get(
+    authmiddlewars,myorder
+  )
+
+  router.route("/allorder").get(
+    authmiddlewars,allowRoles("admin"),allorder
+  )
+
+  router.route("/updateorderstatus/:id").put(
+    authmiddlewars,allowRoles("admin"),updateorderstatus
+  )
+
+
 
 module.exports  = router

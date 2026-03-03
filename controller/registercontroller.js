@@ -17,7 +17,7 @@ const register = async (req, res) => {
     let publicId = "";
 
     if (req.file) {
-      // Convert upload_stream to Promise
+      
       const uploadToCloudinary = () => {
         return new Promise((resolve, reject) => {
           const stream = cloudinary.uploader.upload_stream(

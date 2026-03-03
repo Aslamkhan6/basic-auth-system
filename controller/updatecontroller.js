@@ -1,61 +1,66 @@
-const User = require("../model/authModel")
-const cloudinary = require("../config/cloudinaryconfig")
-const updateProfile = async (req, res) => {
-    try {
-        const user = await User.findById(req.user.id)
+const Product = require("../model/productmodel");
+const cloudinary = require("../config/cloudinaryconfig");
 
-        if (!user) {
-            return res.status(404).json({
-                message: "user not found "
-            })
-        }
-        user.name = req.body.name || user.name
-        user.email = req.body.email || user.email
+const updateproduct = async (req, res) => {
+  try {
+    const { id } = req.params;
 
+    const product = await Product.findById(id);
 
-        if (req.file) {
-            if (user.profileImagePublicId) {
-                await cloudinary.uploader.destroy(user.profileImagePublicId);
-            }
-            const result = await new Promise((resolve, reject) => {
-                const stream = cloudinary.uploader.upload_stream(
-                    { folder: "users" },
-                    (error, result) => {
-                        if (error) reject(error);
-                        else resolve(result);
-                    }
-                );
-                stream.end(req.file.buffer);
-            });
-
-            user.profileImage = result.secure_url;
-            user.profileImagePublicId = result.public_id;
-
-        }
-
-        await user.save()
-
-
-    res.status(200).json({
-      message: "Profile updated successfully",
-      user: {
-        _id: user._id,
-        name: user.name,
-        email: user.email,
-        role: user.role,
-        profileImage: user.profileImage
-      }
-    });
-
-
-    } catch (error) {
-          console.log(error)
- res.status(500).json({
-  
-    message:"internal server error"
- })
+    if (!product) {
+      return res.status(404).json({
+        message: "Product not found",
+      });
     }
-}
 
+    product.name = req.body.name || product.name;
+    product.description = req.body.description || product.description;
+    product.price = req.body.price || product.price;
+    product.category = req.body.category || product.category;
+    product.stock = req.body.stock || product.stock;
 
-module.exports = updateProfile
+    // If new image uploaded
+    if (req.file) {
+
+      // delete old image
+      if (product.imagePublicId) {
+        await cloudinary.uploader.destroy(product.imagePublicId);
+      }
+
+      // upload new image
+      const result = await cloudinary.uploader.upload_stream(
+        { folder: "products" },
+        async (error, result) => {
+          if (error) throw error;
+
+          product.image = result.secure_url;
+          product.imagePublicId = result.public_id;
+
+          await product.save();
+
+          return res.status(200).json({
+            message: "Product updated successfully",
+            product,
+          });
+        }
+      );
+
+      result.end(req.file.buffer);
+
+    } else {
+      await product.save();
+
+      res.status(200).json({
+        message: "Product updated successfully",
+        product,
+      });
+    }
+
+  } catch (error) {
+    res.status(500).json({
+      message: "Server error",
+    });
+  }
+};
+
+module.exports = updateproduct;

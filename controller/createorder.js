@@ -1,26 +1,25 @@
-const mongoose = require("mongoose");
 const Cart = require("../model/cartmodel");
 const Order = require("../model/order");
 const Product = require("../model/productmodel");
 
 const createOrder = async (req, res) => {
-  const session = await mongoose.startSession();
-  session.startTransaction();
-
   try {
     const { shippingAddress } = req.body;
 
-    if (!shippingAddress) {
-      await session.abortTransaction();
+    if (
+      !shippingAddress ||
+      !shippingAddress.fullName ||
+      !shippingAddress.phone ||
+      !shippingAddress.city ||
+      !shippingAddress.addressLine
+    ) {
       return res.status(400).json({
-        message: "Shipping address is required",
+        message: "Complete shipping address is required",
       });
     }
 
-    const cart = await Cart.findOne({ user: req.user.id }).session(session);
-
+    const cart = await Cart.findOne({ user: req.user.id });
     if (!cart || cart.items.length === 0) {
-      await session.abortTransaction();
       return res.status(400).json({
         message: "Cart is empty",
       });
@@ -30,62 +29,49 @@ const createOrder = async (req, res) => {
     const orderItems = [];
 
     for (const item of cart.items) {
-      const product = await Product.findById(item.product).session(session);
+      const product = await Product.findById(item.product);
+      const quantity = Number(item.quantity) || 0;
 
       if (!product) {
-        await session.abortTransaction();
         return res.status(404).json({
           message: "Product not found",
         });
       }
 
-      if (product.stock < item.quantity) {
-        await session.abortTransaction();
+      if (quantity < 1 || product.stock < quantity) {
         return res.status(400).json({
           message: `Insufficient stock for ${product.name}`,
         });
       }
 
-      product.stock -= item.quantity;
-      await product.save({ session });
+      product.stock -= quantity;
+      await product.save();
 
-      totalAmount += product.price * item.quantity;
-
+      totalAmount += Number(product.price) * quantity;
       orderItems.push({
         product: product._id,
         name: product.name,
         image: product.image,
-        quantity: item.quantity,
+        quantity,
         price: product.price,
       });
     }
 
-    const order = await Order.create(
-      [
-        {
-          user: req.user.id,
-          orderItems,
-          shippingAddress,
-          totalAmount,
-        },
-      ],
-      { session }
-    );
+    const order = await Order.create({
+      user: req.user.id,
+      orderItems,
+      shippingAddress,
+      totalAmount,
+    });
 
     cart.items = [];
-    await cart.save({ session });
-
-    await session.commitTransaction();
-    session.endSession();
+    await cart.save();
 
     return res.status(201).json({
       message: "Order created successfully",
-      order: order[0],
+      order,
     });
   } catch (error) {
-    await session.abortTransaction();
-    session.endSession();
-
     console.error(error);
     return res.status(500).json({
       message: "Server error",

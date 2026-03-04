@@ -20,8 +20,11 @@ const createorder = require("../controller/createorder")
 const myorder = require("../controller/myorder")
 const allorder = require("../controller/getallorder")
 const updateorderstatus = require("../controller/updateorderstatus")
+const createbanner = require("../controller/createbannercontroller")
+const getactivebanner = require("../controller/getactivebannercontroller")
 
 router.route("/").get(home)
+router.route("/banner").get(getactivebanner)
 router.route("/register").post(upload.single("profileImage"),register)
 router.route("/login").post(login)
 router.route("/profile").get(authmiddlewars,profile)
@@ -36,14 +39,14 @@ router.route("/updateproduct/:id").put(
   updateproduct
 );
 
-router.route("/deleteproduct").delete(
+router.route("/deleteproduct/:id").delete(
   authmiddlewars,
   allowRoles("admin"),
   deleteproduct
 );
 router.route("/addtocart").post(
   authmiddlewars,addtocart);
-router.route("/removecartitem/:ProductId").delete(
+router.route("/removecartitem/:productId").delete(
   authmiddlewars,removefromcart);
 router.route("/getcart").get(
   authmiddlewars,getcart);
@@ -62,6 +65,13 @@ router.route("/getcart").get(
 
   router.route("/updateorderstatus/:id").put(
     authmiddlewars,allowRoles("admin"),updateorderstatus
+  )
+
+  router.route("/banner").post(
+    authmiddlewars,
+    allowRoles("admin"),
+    upload.single("bannerImage"),
+    createbanner
   )
 
 

@@ -6,7 +6,7 @@ product:{
     required:true
 },
 quantity:{
-    type:String,
+    type:Number,
     required:true,
     default:1
 },

@@ -5,7 +5,8 @@ const Product = require("../model/productmodel")
 const addToCart = async (req, res) => {
     try {
 
-        const { productId, quantity } = req.body
+        const { productId } = req.body
+        const quantity = Number(req.body.quantity) || 1;
         const product = await Product.findById(productId)
         console.log(product)
         if (!product) {
@@ -24,10 +25,17 @@ const addToCart = async (req, res) => {
 
             //if product is already 
             if(itemindex > -1){
-                cart.items[itemindex].quantity  += quantity 
+                const nextQty = Number(cart.items[itemindex].quantity) + quantity;
+                if (nextQty > product.stock) {
+                    return res.status(400).json({ message: "Insufficient stock" });
+                }
+                cart.items[itemindex].quantity = nextQty;
             }
             //if product is not added
             else{
+                if (quantity > product.stock) {
+                    return res.status(400).json({ message: "Insufficient stock" });
+                }
                 cart.items.push({
                     product:productId,
                     quantity,

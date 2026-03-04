@@ -1,13 +1,14 @@
 const Cart = require("../model/cartmodel")
 const removefromcart = async (req, res) => {
     try {
+        const productId = req.params.productId || req.params.ProductId;
         const cart = await Cart.findOne({ user: req.user.id })
         if (!cart) {
             return res.status(404).json({
                 messgae: "product not found"
             })
         }
-        cart.items = cart.items.filter(item => item.product.toString() !== req.params.productId)
+        cart.items = cart.items.filter(item => item.product.toString() !== productId)
 
         await cart.save()
         res.status(200).json({
